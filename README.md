@@ -7,9 +7,11 @@ If do you like to build your own **Arduino** project on **Raspberry Picos (I-II)
 - supports multible boards **PICO-I-II**; Waveshare 2350 1.47
   
 **CD**, **MD**, **RD** - directory handling
-**DATE** and **TIME** get and set time/date value
+**DEL** - removing file
+**DIR** - shows the directory
+**DATE** and **TIME** - get and set time/date value
 **TYPE** - list an ASCI-File on your terminal
-**CLS** -clean the VT100 screen
+**CLS** - clean the VT100 screen
 **TEMP** - get the RTC- chip and CPU- temperature
 This function is a simple platform for your own enhancements
 
