@@ -13,4 +13,5 @@ If do you like to build your own **Arduino** project on **Raspberry Picos (I-II)
 **TEMP** - get the RTC- chip and CPU- temperature
 This function is a simple platform for your own enhancements
 
-Released into the public domain without any warenty in software, hardware and system application.
+Released into the public domain without any warrenty.
+No warrenty on the software source/function, hardware and/or system application.
