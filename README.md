@@ -34,8 +34,8 @@ Please find some SD-Card configurations in “SD-OS_Pico.h”. Here you can defi
 The token parser (SD-OS_Parser.ino) was an automatic generated code block. It is a binary search algorithm, makes it faster than sequential searching. Hand coded enhancements could be difficult! It is better to place your enhancement into a separate function.
 
 **Restrictions:**
-The error handling is incomplete 
-verry long pathnames could be a problem
+The error handling is not complete 
+longer pathnames could be a problem
 
 Released into the public domain without warranty.
 No warranty on the software sourcecode/function, hardware and/or system applications.
