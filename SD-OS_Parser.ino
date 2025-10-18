@@ -30,12 +30,34 @@ int fnc_AUTO(const char* szCmdLn)
 int fnc_CD(const char* szCmdLn)
 {
   /* place your code here */
-  char sLine[ILINE];
-  if(strlen(szCmdLn) >= 2){
-    strcpy(sLine, szCmdLn+1);
-    strcat(sLine, "/");
+  char sLine[ILINE]={""};
+  char* psL;
+  if(strlen(szCmdLn) > 1){
+    if (!strcmp(szCmdLn, " /")){
+       strcpy(sLine,"/");
+    } else
+    if (strstr(szCmdLn, " ..")) {
+      strcpy(sLine, sPath);
+      psL= strrchr(sLine, '/');
+      *psL = '\0';
+      if (strlen(sLine) <= 1) {
+        strcpy(sLine,"/");
+      }
+    } else
+    if (strstr(szCmdLn, " .")) {
+      strcpy(sLine, sPath);
+      strcat(sLine,"/");
+      strcat(sLine, szCmdLn + 2);
+    } else {  
+      strcpy(sLine, sPath);
+      if (strcmp(sLine, "/"))
+      {
+        strcat(sLine,"/");
+      }
+      strcat(sLine, szCmdLn + 1);
+    }
   } else {
-    strcpy(sLine, "/");
+    strcpy(sLine, sPath);
   }
   if (SD.begin(PIN_SS, SDCRD)) 
   {
@@ -43,8 +65,10 @@ int fnc_CD(const char* szCmdLn)
     File dir = SD.open(sLine);
     if (dir) {
       strcpy(sPath, sLine);
-      Serial.print(F(" : "));
-      Serial.print(sPath);
+    } else {
+      Serial.println();
+      Serial.print(sLine);
+      Serial.print(F(" not found"));
     }
     SD.end();
     digitalWrite(PIN_LED, 0);
@@ -73,9 +97,51 @@ int fnc_CLS(const char* szCmdLn)
 /**************************************************/
 int fnc_COPY(const char* szCmdLn)
 {
-   /* place your code here */
-   
-   return( eCOPY );
+  /* place your code here */
+  File FH1, FH2;
+  char sFnTo[ILINE];
+  char sFnFrom[ILINE];
+  char s1[40], s2[40];
+  #define IBUFFER 64
+  char cBuff[IBUFFER];
+
+  szCmdLn++;
+  int iRet= sscanf(szCmdLn,"%s %s", &s1, &s2);
+  if (iRet ==2) {
+    strcpy(sFnFrom, sPath);
+    strcat(sFnFrom, "/");
+    strcat(sFnFrom, s1);
+    strcpy(sFnTo, sPath);
+    strcat(sFnTo, "/");
+    strcat(sFnTo, s2);
+
+    if (SD.begin( PIN_SS, SDCRD)) 
+    {
+      digitalWrite(PIN_LED, 1);
+      FH1 = SD.open(sFnFrom, FILE_READ);
+      if (FH1) {
+        FH2 = SD.open(sFnTo, FILE_WRITE);
+        if (FH2) {
+          while (FH1.available() > 0)
+          {
+            size_t iLen = FH1.readBytes(cBuff, IBUFFER);
+            FH2.write(cBuff, iLen);
+          } 
+          Serial.print(F(" OK"));
+        } else {
+          Serial.print(F(" no Dest."));
+        }
+        FH2.close();
+        FH1.close();
+      } else {
+        Serial.print(sFnFrom);
+        Serial.print(F(" no Source"));
+      }
+      digitalWrite(PIN_LED, 0);
+    }
+    SD.end();
+  }  
+  return( eCOPY );
 }  /* end of fnc_COPY */
  
 /**************************************************/
@@ -211,6 +277,7 @@ int fnc_DEL(const char* szCmdLn)
   strcpy(sLine, sPath);
   if (strlen(szCmdLn)>1)
   {
+    strcat(sLine, "/");
     strcat(sLine, szCmdLn +1);
   }
   Serial.print(F(" : "));
@@ -222,12 +289,12 @@ int fnc_DEL(const char* szCmdLn)
       int16_t iRes= SD.remove(sLine);
       if (iRes>0)
       {
-        Serial.print(F("File removed"));
+        Serial.print(F("removed"));
       } else {
-        Serial.print(F("File not removed!"));
+        Serial.print(F("not removed!"));
       }
     } else {
-      Serial.print(F(" File not Found"));
+      Serial.print(F("not Found"));
     }
     SD.end();
     digitalWrite(PIN_LED, 0);
@@ -294,15 +361,15 @@ int fnc_DIR(const char* szCmdLn)
 int fnc_ECHO(const char* szCmdLn)
 {
   /* place your code here */
-  File file;
+  File FH1;
   Serial.print(F("\r\n"));
   if (SD.begin(PIN_SS, SDCRD))   {
     digitalWrite(PIN_LED, 1);
-    file = SD.open(sLogFn, FILE_WRITE);
-    if (file) {
+    FH1 = SD.open(sLogFn, FILE_WRITE);
+    if (FH1) {
       Serial.println(szCmdLn+1);
-      file.println(szCmdLn+1);
-      file.close();
+      FH1.println(szCmdLn+1);
+      FH1.close();
     } else {
       Serial.print(F("no File ..."));
       Serial.print(sLogFn);
@@ -327,7 +394,6 @@ int fnc_FORMAT(const char* szCmdLn)
     digitalWrite(PIN_LED, 1);
     //bool stFS= SD.format(); // 
     Serial.println(F("A \"format\" function is not implemented"));
-    
     SD.end();
     digitalWrite(PIN_LED, 0);
   }
@@ -380,6 +446,7 @@ int fnc_MD(const char* szCmdLn)
   char sLine[ILINE];
   strcpy(sLine, sPath);
   if (strlen(szCmdLn)>1) {
+    strcat(sLine,"/");
     strcat(sLine, szCmdLn +1);
   }
   Serial.print(F(" : "));
@@ -455,12 +522,18 @@ int fnc_REN(const char* szCmdLn)
   /* place your code here */
   char sFrom[ILINE];
   char sTo[ILINE];
+  char s1[40];
+  char s2[40];
   Serial.print(F(" : "));
-
   szCmdLn++;
-
-  int iRet= sscanf(szCmdLn,"%s %s", &sFrom, &sTo);
+  int iRet= sscanf(szCmdLn,"%s %s", &s1, &s2);
   if (iRet ==2) {
+    strcpy(sFrom, sPath);
+    strcat(sFrom, "/");
+    strcat(sFrom, s1);
+    strcpy(sTo, sPath);
+    strcat(sTo, "/");
+    strcat(sTo, s2);
     if (SD.begin(PIN_SS, SDCRD)) {
       digitalWrite(PIN_LED, 1);
       bool stFS= SD.rename(sFrom, sTo);
@@ -562,16 +635,16 @@ int fnc_TYPE(const char* szCmdLn)
   Serial.println(szLogFn);
   digitalWrite(PIN_LED,1);
   if (SD.begin(PIN_SS, SDCRD)) {
-    File file = SD.open(szLogFn, FILE_READ);
-    if (file) {
-      while (file.available()) 
+    File FH1 = SD.open(szLogFn, FILE_READ);
+    if (FH1) {
+      while (FH1.available()) 
       {
-        Serial.write(file.read());
+        Serial.write(FH1.read());
       }
       Serial.print(F("\r\nFilesize: "));
-      Serial.print(file.size(), DEC);
+      Serial.print(FH1.size(), DEC);
       Serial.print(F(" Byte"));
-      file.close();
+      FH1.close();
     } else {
       Serial.print(szLogFn);
       Serial.println(F(" not found!"));

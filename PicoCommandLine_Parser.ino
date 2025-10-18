@@ -1,4 +1,12 @@
 /**************************************************/
+/*! \file PicoCommandLine_Parser.ino
+    \brief Raspberry pico command line interface (CLI)
+    \defgroup command line parser
+    \author Achim Jenne 18.10.2025
+    \sa ... */
+/**************************************************/
+
+/**************************************************/
 /*! \brief Automatic generated enum- commands
     \defgroup token_parser
     \sa datetime_t */
@@ -27,7 +35,7 @@ File myFile;
 
 //time_t tiCPU = time(nullptr);
 char sLogFn[40]= "start.txt";
-char sPath[ILINE]= {"/"};
+char sPath[ILINE]={"/"};
 volatile bool bAuto = false;
 bool bRTC = false;
 // struct tm ti;
@@ -108,7 +116,7 @@ void setup() {
       Serial.println(F("RTC set to 24h Format"));
       RTC.setHourMode(CLOCK_H24);
     }
-    /* set internal RTC to external RTC values */
+    /* load internal RTC from external RTC */
     tiV.tv_sec = dateTime2Unix(RTC.getYear(),RTC.getMonth(),RTC.getDay(),RTC.getHours(),RTC.getMinutes(),RTC.getSeconds()) ; 
     tiV.tv_usec = 0;
     settimeofday(&tiV, nullptr);
@@ -119,6 +127,9 @@ void setup() {
     Serial.printf("%2.2d.%2.2d.%4.4d %2.2d:%2.2d:%2.2d\r\n",
                    RTC.getDay(),   RTC.getMonth(),   RTC.getYear(), 
                    RTC.getHours(), RTC.getMinutes(), RTC.getSeconds());  
+  } else {
+    tiV.tv_sec = tiUx;
+    tiV.tv_usec = 0;
   }
 
   time(&tiUx); 
@@ -127,7 +138,7 @@ void setup() {
   Serial.print(sLine);
   strftime(sLine, sizeof(sLine), " %0d %B 20%0y (%A) %0H:%0M:%0S", localtime(&tiUx));
   Serial.println(sLine);
-
+  Serial.print(sPath);
   Serial.print(F(">"));
   /***/
 }
@@ -170,7 +181,9 @@ bool editLine(char *psLine, char inChar)
           strcpy(&sTemp[0], psLine);
           strcpy(psLine, &sBack[0]);
           strcpy(&sBack[0], &sTemp[0]);
-          Serial.print(F("\e[0G>"));
+          Serial.print(F("\e[0G"));
+          Serial.print(sPath);
+          Serial.print(F(">"));
           Serial.print(psLine);
           iIndx= strlen(psLine);
           iESC= 0;
@@ -248,7 +261,7 @@ bool editLine(char *psLine, char inChar)
               *(psLine+iIndx) = inChar;
               Serial.print(psLine + iIndx + 1);              
               Serial.print(F("\e["));
-              Serial.print(iIndx+3);
+              Serial.print(iIndx+3+strlen(sPath));
               Serial.print(F("G"));
               iIndx++;
             } else {
@@ -263,7 +276,7 @@ bool editLine(char *psLine, char inChar)
 }
 /**************************************************/
 void loop() {
-char inChar;
+  char inChar;
   static char sLine[ILINE]; 
   char *psLine= &sLine[0];
 
@@ -278,7 +291,9 @@ char inChar;
       psLine = strupr(psLine);
       int iRet= fnSDOS_Parser(psLine);
       *psLine= 0;
-      Serial.print(S_CR);
+      Serial.print(F("\r\n"));
+      Serial.print(sPath);
+      Serial.print(F(">"));
     } /* end if */
   }  
 }
