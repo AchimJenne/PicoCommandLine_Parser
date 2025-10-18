@@ -1,21 +1,35 @@
 # Raspberry PICO: PicoCommandLine_Parser
-A simple ASCII commandline- handling (CLI) with elementary File- functions and terminal comfort. Supports VT100-Terminal emulation (like TTerm, PUTTY, GTKTerm and other) on USB-Port.
+A simple ASCII commandline- interface (CLI) with prinary File- functions and comfort. Supports VT100-Terminal emulation (like TerraTerm, PUTTY, GTKTerm and other) on the USB-Port.
+
 If do you like to build your own **Arduino** project on **Raspberry Picos (I-II)** with **SD-Cards** and if do you need primary filehandling, may be you can find this function helpful.
 - SD-Cards on SPI 0 and 1, tested on 3.5 Inch graphic boards, tested with Cytron Maker Board.
+  
 - supports the **PICO-Realtime clock**
-- **DS3231** external RTC support 
+  
+- **DS3231** external RTC support
+  
 - supports multible boards **PICO-I-II**; PICO 2350 with 1.47 Inch Display and SD-Card
   
 **CD**, **MD**, **RD** - directory handling
+
 **CONFIG** - shows the SPI- configuration
+
 **DEL** - removing file
+
 **DIR** - shows the directory
+
 **DATE** and **TIME** - get and set time/date value
+
 **TYPE** - list an ASCII-File on your terminal
+
 **CLS** - clean the VT100 screen and set the cursor position top-left
+
 **TEMP** - get the RTC- chip and CPU- temperature
+
 **VER** - shows some software informations
+
 **VOL** - list the SD-Card information
+
 This function is a simple platform for your own software project
 
 The main- function is a rapid running loop (like other ARDUINO software designs). It means, this function is polling the terminal interface. There is no “event-driven” interface in ARDUINO available. This means, your enhancement must have fast functions! Otherwise the Input-buffer should be increased and/or the second core should do some work.
