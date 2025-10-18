@@ -1,5 +1,5 @@
 # Raspberry PICO: PicoCommandLine_Parser
-A simple ASCII commandline- interface (CLI) with prinary File- functions and comfort. Supports VT100-Terminal emulation (like TerraTerm, PUTTY, GTKTerm and other) on the USB-Port.
+A simple ASCII commandline- interface (CLI) with prinary File- functions and comfort. Supports VT100-Terminal emulation (like TeraTerm, PUTTY, GTKTerm and other) on the USB-Port.
 
 If do you like to build your own **Arduino** project on **Raspberry Picos (I-II)** with **SD-Cards** and if do you need primary filehandling, may be you can find this function helpful.
 - SD-Cards on SPI 0 and 1, tested on 3.5 Inch graphic boards, tested with Cytron Maker Board.
