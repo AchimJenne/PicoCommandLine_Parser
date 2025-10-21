@@ -39,7 +39,7 @@ char sPath[ILINE]={"/"};
 volatile bool bAuto = false;
 bool bRTC = false;
 // struct tm ti;
-time_t tiUx= 1611198855;  // Jan 21, 2021  3:14:15AM ...RPi Pico Release;
+time_t tiUx= 1760968836;  // SW- Release;
 struct timeval tiV;
 
 /**************************************************/
@@ -55,6 +55,11 @@ void setup() {
   } 
   delay(10);
   pinMode(PIN_LED, OUTPUT);
+  #if defined WS147SPI1
+  #else
+  //pinMode(USBPWR, INPUT);
+  //pinMode(EXTPWR, INPUT); // VSYS set to low means external 3.3V power supply? (not tested)
+  #endif
   analogReadResolution(12);
   analogReadTemp(3.3f);
 
@@ -67,9 +72,11 @@ void setup() {
   Serial.println(PICO_SDK_VERSION_STRING);
   Serial.print(F("Arduino Version:  "));
   Serial.println(ARDUINO_PICO_VERSION_STR);
+  Serial.print(F("USB- port :       "));
+  Serial.println(digitalRead(USBPWR));
 
 #if defined MAKERSPI1
-  check available SD_Card
+  // check available SD_Card
   gpio_init(PIN_SS);
   gpio_set_dir(PIN_SS, false);
   gpio_disable_pulls(PIN_SS);
@@ -89,16 +96,18 @@ void setup() {
 #endif
 
   // if available, then init SPI-Interface
+#ifndef MAKERGPIO
   SDCRD.setMISO(PIN_MISO);
   SDCRD.setMOSI(PIN_MOSI);
   SDCRD.setSCK(PIN_SCK);
   SDCRD.beginTransaction(SPISettings(SD_SCK_MHZ(SDSPD), MSBFIRST, SPI_MODE0));
+#endif
   Serial.print(F("Init SD-Card  ... "));
-  if (!SD.begin( PIN_SS, SDCRD)) 
+  if (SD.begin( SDCRD)) 
   {
-     Serial.println(F("failed"));
-  } else {
     Serial.println(F("OK"));
+  } else {
+    Serial.println(F("failed"));
   }
   SD.end(); 
 
@@ -130,8 +139,9 @@ void setup() {
   } else {
     tiV.tv_sec = tiUx;
     tiV.tv_usec = 0;
+    settimeofday(&tiV, nullptr);
   }
-
+  
   time(&tiUx); 
   Serial.print(F("Pico internal RTC: "));
   strftime(sLine, sizeof(sLine), "%0d.%0m.20%0y %0H:%0M:%0S", localtime(&tiUx));
@@ -140,7 +150,6 @@ void setup() {
   Serial.println(sLine);
   Serial.print(sPath);
   Serial.print(F(">"));
-  /***/
 }
 /**************************************************/
 /**

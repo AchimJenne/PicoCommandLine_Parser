@@ -59,7 +59,7 @@ int fnc_CD(const char* szCmdLn)
   } else {
     strcpy(sLine, sPath);
   }
-  if (SD.begin(PIN_SS, SDCRD)) 
+  if (SD.begin( SDCRD)) 
   {
     digitalWrite(PIN_LED, 1);
     File dir = SD.open(sLine);
@@ -115,7 +115,7 @@ int fnc_COPY(const char* szCmdLn)
     strcat(sFnTo, "/");
     strcat(sFnTo, s2);
 
-    if (SD.begin( PIN_SS, SDCRD)) 
+    if (SD.begin( SDCRD)) 
     {
       digitalWrite(PIN_LED, 1);
       FH1 = SD.open(sFnFrom, FILE_READ);
@@ -153,13 +153,14 @@ int fnc_COPY(const char* szCmdLn)
 int fnc_CONFIG(const char* szCmdLn)
 {
   /* place your code here */
-  if (!SD.begin( PIN_SS, SDCRD)) 
+  if (!SD.begin( SDCRD)) 
   {
      Serial.println(F(": failed"));
   } else {
     digitalWrite(PIN_LED, 1);
     Serial.println(F(": OK"));
     Serial.println(F("SPI-Interface"));
+#ifndef MAKERGPIO
     Serial.print(F("MISO : "));
     Serial.println(PIN_MISO);
     Serial.print(F("MOSI : "));
@@ -168,6 +169,7 @@ int fnc_CONFIG(const char* szCmdLn)
     Serial.println(PIN_SCK);
     Serial.print(F("CS   : "));
     Serial.println(PIN_SS);
+#endif    
     Serial.print(F("SD-Card type:      "));
     switch (SD.type()) {
       case 0:
@@ -231,8 +233,7 @@ int fnc_DATE(const char* szCmdLn)
   mytm= *localtime(&clk);
   if (strlen(szCmdLn) >= 8){
     int16_t iResult= sscanf( szCmdLn,"%02d.%02d.%04d", &day, &mon, &year);   
-    if (iResult == 3)
-    {
+    if (iResult == 3) {
       if (bRTC) {
         RTC.setDay((uint8_t) day);
         RTC.setMonth((uint8_t) mon);
@@ -281,7 +282,7 @@ int fnc_DEL(const char* szCmdLn)
     strcat(sLine, szCmdLn +1);
   }
   Serial.print(F(" : "));
-  if (SD.begin(PIN_SS, SDCRD))
+  if (SD.begin(SDCRD))
   {
     if (SD.exists(sLine))
     {
@@ -341,7 +342,7 @@ int fnc_DIR(const char* szCmdLn)
     strcpy(sLine, sPath);
   }
   Serial.println(F(" : "));
-  if (SD.begin(PIN_SS, SDCRD)) 
+  if (SD.begin(SDCRD)) 
   {
     digitalWrite(PIN_LED, 1);
     File dir = SD.open(sLine);
@@ -363,7 +364,7 @@ int fnc_ECHO(const char* szCmdLn)
   /* place your code here */
   File FH1;
   Serial.print(F("\r\n"));
-  if (SD.begin(PIN_SS, SDCRD))   {
+  if (SD.begin(SDCRD))   {
     digitalWrite(PIN_LED, 1);
     FH1 = SD.open(sLogFn, FILE_WRITE);
     if (FH1) {
@@ -390,7 +391,7 @@ int fnc_FORMAT(const char* szCmdLn)
 {
   /* place your code here */
   Serial.println(F(" : "));
-  if (SD.begin(PIN_SS, SDCRD)) {
+  if (SD.begin(SDCRD)) {
     digitalWrite(PIN_LED, 1);
     //bool stFS= SD.format(); // 
     Serial.println(F("A \"format\" function is not implemented"));
@@ -450,7 +451,8 @@ int fnc_MD(const char* szCmdLn)
     strcat(sLine, szCmdLn +1);
   }
   Serial.print(F(" : "));
-  if (SD.begin(PIN_SS, SDCRD)) {
+  digitalWrite(PIN_LED, 1);
+  if (SD.begin(SDCRD)) {
     if (!SD.exists(sLine)) {
       int16_t iRes= SD.mkdir(sLine);
       if (iRes>0) {
@@ -462,6 +464,7 @@ int fnc_MD(const char* szCmdLn)
       Serial.print(F(" is an existing Directory"));
     }
     SD.end();
+    digitalWrite(PIN_LED, 0);
   }
   return( eMD );
 }  /* end of fnc_MD */
@@ -476,7 +479,7 @@ int fnc_PATH(const char* szCmdLn)
 {
    /* place your code here */
    Serial.print(" : ");
-   Serial.println(sPath);
+   Serial.print(sPath);
    return( ePATH );
 }  /* end of fnc_PROMPT */
  
@@ -495,7 +498,8 @@ int fnc_RD(const char* szCmdLn)
     strcat(sLine, szCmdLn +1);
   }
   Serial.print(F(" : "));
-  if (SD.begin(PIN_SS, SDCRD)) {
+  digitalWrite(PIN_LED, 1);
+  if (SD.begin(SDCRD)) {
     if (SD.exists(sLine)) {
       int16_t iRes= SD.rmdir(sLine);
       if (iRes>0) {
@@ -508,6 +512,7 @@ int fnc_RD(const char* szCmdLn)
     }
     SD.end();
   }
+  digitalWrite(PIN_LED, 0);
   return( eRD );
 }  /* end of fnc_RD */
  
@@ -534,7 +539,7 @@ int fnc_REN(const char* szCmdLn)
     strcpy(sTo, sPath);
     strcat(sTo, "/");
     strcat(sTo, s2);
-    if (SD.begin(PIN_SS, SDCRD)) {
+    if (SD.begin( SDCRD)) {
       digitalWrite(PIN_LED, 1);
       bool stFS= SD.rename(sFrom, sTo);
       if (stFS) {
@@ -580,6 +585,7 @@ int fnc_TIME(const char* szCmdLn)
   struct tm mytm;
   time_t clk;
   clk= time(nullptr);
+  //Serial.println(clk);
   mytm= *localtime(&clk);
   if (strlen(szCmdLn) >= 3) {
     int iResult= sscanf( szCmdLn,"%02d:%02d:%02d", &hour, &minute, &second);
@@ -626,16 +632,40 @@ int fnc_TIME(const char* szCmdLn)
 int fnc_TYPE(const char* szCmdLn)
 {
    /* place your code here */
-  char szLogFn[ILINE];
-  strcpy(szLogFn, sPath);
-  if (strlen(szCmdLn)>1) {
-    strcat(szLogFn, szCmdLn+1);
+  char sLine[ILINE]={""};
+  char* psL;
+  if(strlen(szCmdLn) > 1){
+    if (!strcmp(szCmdLn, " /")){
+       strcpy(sLine,"/");
+    } else
+    if (strstr(szCmdLn, " ..")) {
+      strcpy(sLine, sPath);
+      psL= strrchr(sLine, '/');
+      *psL = '\0';
+      if (strlen(sLine) <= 1) {
+        strcpy(sLine,"/");
+      }
+    } else
+    if (strstr(szCmdLn, " .")) {
+      strcpy(sLine, sPath);
+      strcat(sLine,"/");
+      strcat(sLine, szCmdLn + 2);
+    } else {  
+      strcpy(sLine, sPath);
+      if (strcmp(sLine, "/"))
+      {
+        strcat(sLine,"/");
+      }
+      strcat(sLine, szCmdLn + 1);
+    }
+  } else {
+    strcpy(sLine, sPath);
   }
   Serial.print(F(" : "));
-  Serial.println(szLogFn);
+  Serial.println(sLine);
   digitalWrite(PIN_LED,1);
-  if (SD.begin(PIN_SS, SDCRD)) {
-    File FH1 = SD.open(szLogFn, FILE_READ);
+  if (SD.begin(SDCRD)) {
+    File FH1 = SD.open(sLine, FILE_READ);
     if (FH1) {
       while (FH1.available()) 
       {
@@ -646,7 +676,7 @@ int fnc_TYPE(const char* szCmdLn)
       Serial.print(F(" Byte"));
       FH1.close();
     } else {
-      Serial.print(szLogFn);
+      Serial.print(sLine);
       Serial.println(F(" not found!"));
     } 
     SD.end();
