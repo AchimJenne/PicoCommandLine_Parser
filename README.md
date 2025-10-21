@@ -25,10 +25,9 @@ If do you like to build your own **Arduino** project on **Raspberry Picos (I-II)
 
 **TYPE** - list an ASCII-File on your terminal
 
-**CLS** - clean the VT100 screen and set the cursor position top-left
+**CLS** - clear the VT100 screen and set the cursor position top-left
 
-**TEMP** - get the RTC- chip (DS3231 if available)
- and CPU- temperature
+**TEMP** - get the RTC- chip (DS3231 if available) and CPU-internal (Die) temperature
 
 **VER** - shows some software informations
 
@@ -41,15 +40,15 @@ The main- function is a rapid running loop (like other ARDUINO software designs)
 **Needed:**
 A Raspberry Pico I or II and a SD-Card on SPI0 or SPI1. A DS3231 RTC could be helpful – but not needed for testing this software.
  
--	ARDUINO development package
--	The Raspberry Pico development enhancement from Earle F. Phillhower (the ARDUINO 2040 package does not support any used functions)
--	The SD-Card functions are an important part of this packages
+-	ARDUINO development package. I used IDE 2.3.4
+-	The Raspberry Pico development enhancement from Earle F. Phillhower III (the ARDUINO MBed RP2040 package doesn't support some functions)
+-	The SD-Card functions are part of this packages
 
 **Hint:**
-Accessing the SD-Card with SDIO is much faster than SPI! But some board are not supporting this interface. In critical applications it could be a good idea to use the SDIO-Interface. But you have to check/change any “SD.begin” statement. 
+Accessing the SD-Card with SDIO is much faster than SPI! But some board are not supporting this interface. In critical applications it could be a good idea to use the SDIO-Interface. But you have to check/change “SD.begin” parameter. 
 Please find some SD-Card configurations in “SD-OS_Pico.h”. Here you can define your own setup.
 
-The token parser (SD-OS_Parser.ino) was an automatic generated code block. It is a binary search algorithm, makes it faster than sequential searching. Hand coded enhancements could be difficult! It is better to place your enhancement into a separate function.
+The token parser (SD-OS_Parser.ino) was an automatic generated code block. It is a binary search tree algorithm, faster than sequential searching. Hand coded enhancements could be difficult! It is better to place your enhancement into a separate function.
 
 **Restrictions:**
 The error handling is not complete 
