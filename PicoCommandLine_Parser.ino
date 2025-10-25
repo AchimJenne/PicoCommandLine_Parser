@@ -20,6 +20,7 @@ enum eCmdSt {eNoToken=0,
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
+//#include <Ticker.h>
 #include <arduino.h>
 #include <string.h>
 #include "SD-OS_Pico.h"
@@ -33,12 +34,10 @@ enum eCmdSt {eNoToken=0,
 static DS3231 RTC;
 File myFile;
 
-//time_t tiCPU = time(nullptr);
 char sLogFn[40]= "start.txt";
 char sPath[ILINE]={"/"};
 volatile bool bAuto = false;
 bool bRTC = false;
-// struct tm ti;
 time_t tiUx= 1760968836;  // SW- Release;
 struct timeval tiV;
 
@@ -55,11 +54,7 @@ void setup() {
   } 
   delay(10);
   pinMode(PIN_LED, OUTPUT);
-  #if defined WS147SPI1
-  #else
-  //pinMode(USBPWR, INPUT);
-  //pinMode(EXTPWR, INPUT); // VSYS set to low means external 3.3V power supply? (not tested)
-  #endif
+
   analogReadResolution(12);
   analogReadTemp(3.3f);
 
@@ -72,8 +67,6 @@ void setup() {
   Serial.println(PICO_SDK_VERSION_STRING);
   Serial.print(F("Arduino Version:  "));
   Serial.println(ARDUINO_PICO_VERSION_STR);
-  Serial.print(F("USB- port :       "));
-  Serial.println(digitalRead(USBPWR));
 
 #if defined MAKERSPI1
   // check available SD_Card
@@ -82,8 +75,7 @@ void setup() {
   gpio_disable_pulls(PIN_SS);
   gpio_put(PIN_SS, 0);
   uint8_t bSD1= 0;
-  while ((bSD1= gpio_get(PIN_SS)) == 0)
-  {
+  while ((bSD1= gpio_get(PIN_SS)) == 0) {
     delay(100);
     Serial.print(F("No Card ("));
     Serial.print(PIN_SS);
@@ -96,15 +88,16 @@ void setup() {
 #endif
 
   // if available, then init SPI-Interface
-#ifndef MAKERGPIO
-  SDCRD.setMISO(PIN_MISO);
-  SDCRD.setMOSI(PIN_MOSI);
-  SDCRD.setSCK(PIN_SCK);
-  SDCRD.beginTransaction(SPISettings(SD_SCK_MHZ(SDSPD), MSBFIRST, SPI_MODE0));
+#if !defined(MAKERGPIO) 
+  SDSPI.setMISO(PIN_MISO);
+  SDSPI.setMOSI(PIN_MOSI);
+  SDSPI.setSCK(PIN_SCK);
+  SDSPI.beginTransaction(SPISettings(SD_SCK_MHZ(SDSPD), MSBFIRST, SPI_MODE0));
+#else
+  
 #endif
   Serial.print(F("Init SD-Card  ... "));
-  if (SD.begin( SDCRD)) 
-  {
+  if (SD.begin( SDCRD)) {
     Serial.println(F("OK"));
   } else {
     Serial.println(F("failed"));
@@ -115,7 +108,7 @@ void setup() {
   Serial.println(analogReadTemp(3.3f));
 
   //*** external RTC Modul ***
-  if (RTC.begin()){
+  if (RTC.begin()) {
     bRTC = true;
     if (!RTC.isRunning()) {
       Serial.println(F("RTC starting"));
@@ -141,7 +134,7 @@ void setup() {
     tiV.tv_usec = 0;
     settimeofday(&tiV, nullptr);
   }
-  
+
   time(&tiUx); 
   Serial.print(F("Pico internal RTC: "));
   strftime(sLine, sizeof(sLine), "%0d.%0m.20%0y %0H:%0M:%0S", localtime(&tiUx));
@@ -285,16 +278,15 @@ bool editLine(char *psLine, char inChar)
 }
 /**************************************************/
 void loop() {
+  bool bEM;
   char inChar;
   static char sLine[ILINE]; 
   char *psLine= &sLine[0];
 
   // put your main code here, to run repeatedly:
-  if (Serial.available())
-  { 
+  if (Serial.available()) { 
     inChar = (char)Serial.read();
-    if (editLine(psLine, inChar))
-    {
+    if (bEM= editLine(psLine, inChar)) {
       /************************************************************/
       // if command
       psLine = strupr(psLine);
@@ -304,5 +296,5 @@ void loop() {
       Serial.print(sPath);
       Serial.print(F(">"));
     } /* end if */
-  }  
-}
+  } /* end if */
+} /* end main loop */

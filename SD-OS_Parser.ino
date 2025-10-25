@@ -11,9 +11,11 @@ int fnc_AUTO(const char* szCmdLn)
     /* place your code here */
     if (bAuto) 
     {
+      // tickHd100.detach();
       Serial.print(F(": off"));
       bAuto= false;
     } else {
+      // tickHd100.attach_ms(100, task_ti100ms, (int) 1);
       Serial.print(F(": on"));
       bAuto = true;
     }
@@ -235,9 +237,10 @@ int fnc_DATE(const char* szCmdLn)
     int16_t iResult= sscanf( szCmdLn,"%02d.%02d.%04d", &day, &mon, &year);   
     if (iResult == 3) {
       if (bRTC) {
-        RTC.setDay((uint8_t) day);
-        RTC.setMonth((uint8_t) mon);
-        RTC.setYear((uint16_t) year);
+        RTC.setDate((uint8_t) day, (uint8_t) mon, (uint16_t) year);
+        //RTC.setDay((uint8_t) day);
+        //RTC.setMonth((uint8_t) mon);
+        //RTC.setYear((uint16_t) year);
         hour  = RTC.getHours();
         minute= RTC.getMinutes();
         second= RTC.getSeconds();
@@ -274,12 +277,34 @@ int fnc_DATE(const char* szCmdLn)
 int fnc_DEL(const char* szCmdLn)
 {
   /* place your code here */
-  char sLine[ILINE];
-  strcpy(sLine, sPath);
-  if (strlen(szCmdLn)>1)
-  {
-    strcat(sLine, "/");
-    strcat(sLine, szCmdLn +1);
+  char sLine[ILINE]={""};
+  char* psL;
+  if(strlen(szCmdLn) > 1){
+    if (!strcmp(szCmdLn, " /")){
+       strcpy(sLine,"/");
+    } else
+    if (strstr(szCmdLn, " ..")) {
+      strcpy(sLine, sPath);
+      psL= strrchr(sLine, '/');
+      *psL = '\0';
+      if (strlen(sLine) <= 1) {
+        strcpy(sLine,"/");
+      }
+    } else
+    if (strstr(szCmdLn, " .")) {
+      strcpy(sLine, sPath);
+      strcat(sLine,"/");
+      strcat(sLine, szCmdLn + 2);
+    } else {  
+      strcpy(sLine, sPath);
+      if (strcmp(sLine, "/"))
+      {
+        strcat(sLine,"/");
+      }
+      strcat(sLine, szCmdLn + 1);
+    }
+  } else {
+    strcpy(sLine, sPath);
   }
   Serial.print(F(" : "));
   if (SD.begin(SDCRD))
@@ -444,11 +469,34 @@ int fnc_HELP(const char* szCmdLn)
 int fnc_MD(const char* szCmdLn)
 {
    /* place your code here */
-  char sLine[ILINE];
-  strcpy(sLine, sPath);
-  if (strlen(szCmdLn)>1) {
-    strcat(sLine,"/");
-    strcat(sLine, szCmdLn +1);
+  char sLine[ILINE]={""};
+  char* psL;
+  if(strlen(szCmdLn) > 1){
+    if (!strcmp(szCmdLn, " /")){
+       strcpy(sLine,"/");
+    } else
+    if (strstr(szCmdLn, " ..")) {
+      strcpy(sLine, sPath);
+      psL= strrchr(sLine, '/');
+      *psL = '\0';
+      if (strlen(sLine) <= 1) {
+        strcpy(sLine,"/");
+      }
+    } else
+    if (strstr(szCmdLn, " .")) {
+      strcpy(sLine, sPath);
+      strcat(sLine,"/");
+      strcat(sLine, szCmdLn + 2);
+    } else {  
+      strcpy(sLine, sPath);
+      if (strcmp(sLine, "/"))
+      {
+        strcat(sLine,"/");
+      }
+      strcat(sLine, szCmdLn + 1);
+    }
+  } else {
+    strcpy(sLine, sPath);
   }
   Serial.print(F(" : "));
   digitalWrite(PIN_LED, 1);
@@ -492,10 +540,34 @@ int fnc_PATH(const char* szCmdLn)
 int fnc_RD(const char* szCmdLn)
 {
   /* place your code here */
-  char sLine[ILINE];
-  strcpy(sLine, sPath);
-  if (strlen(szCmdLn)>1) {
-    strcat(sLine, szCmdLn +1);
+  char sLine[ILINE]={""};
+  char* psL;
+  if(strlen(szCmdLn) > 1){
+    if (!strcmp(szCmdLn, " /")){
+       strcpy(sLine,"/");
+    } else
+    if (strstr(szCmdLn, " ..")) {
+      strcpy(sLine, sPath);
+      psL= strrchr(sLine, '/');
+      *psL = '\0';
+      if (strlen(sLine) <= 1) {
+        strcpy(sLine,"/");
+      }
+    } else
+    if (strstr(szCmdLn, " .")) {
+      strcpy(sLine, sPath);
+      strcat(sLine,"/");
+      strcat(sLine, szCmdLn + 2);
+    } else {  
+      strcpy(sLine, sPath);
+      if (strcmp(sLine, "/"))
+      {
+        strcat(sLine,"/");
+      }
+      strcat(sLine, szCmdLn + 1);
+    }
+  } else {
+    strcpy(sLine, sPath);
   }
   Serial.print(F(" : "));
   digitalWrite(PIN_LED, 1);
@@ -591,9 +663,7 @@ int fnc_TIME(const char* szCmdLn)
     int iResult= sscanf( szCmdLn,"%02d:%02d:%02d", &hour, &minute, &second);
     if (iResult == 3) {
       if (bRTC) {
-          RTC.setSeconds((uint8_t) second);
-          RTC.setMinutes((uint8_t) minute);
-          RTC.setHours((uint8_t) hour);
+        RTC.setTime((uint8_t) hour, (uint8_t) minute, (uint8_t) second);
       } 
     } 
     if (bRTC) {
