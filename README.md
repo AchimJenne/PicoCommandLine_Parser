@@ -48,11 +48,12 @@ A Raspberry Pico I or II and a SD-Card on SPI0 or SPI1. A DS3231 RTC could be he
 Accessing the SD-Card with SDIO is much faster than SPI! But some board are not supporting this interface. In critical applications it could be a good idea to use the SDIO-Interface. But you have to check/change “SD.begin” parameter. 
 Please find some SD-Card configurations in “SD-OS_Pico.h”. Here you can define your own setup.
 
-The token parser (SD-OS_Parser.ino) was an automatic generated code block. It is a binary search tree algorithm, faster than sequential searching. Hand coded enhancements could be difficult! It is better to place your enhancement into a separate function.
+The token parser (SD-OS_Parser.ino) is automatic generated code. It is a binary search tree algorithm, faster than sequential searching. Hand coded enhancements could be difficult! It is better to place your enhancement into a separate function.
 
 **Restrictions:**
 The error handling is not complete 
 longer pathnames could be a problem
+![IMG_0584_cut_comp](https://github.com/user-attachments/assets/25883f65-68be-4058-8885-b6e8334d9b79)
 
 Released into the public domain without warranty.
 No warranty on the software sourcecode/function, hardware and/or system applications.
