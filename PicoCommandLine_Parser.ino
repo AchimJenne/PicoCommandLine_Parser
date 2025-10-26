@@ -17,14 +17,14 @@ enum eCmdSt {eNoToken=0,
       eTIME, eTYPE, eVER, eVOL};
 
 /**************************************************/
+#include "SD-OS_Pico.h"
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
-//#include <Ticker.h>
-#include <arduino.h>
-#include <string.h>
-#include "SD-OS_Pico.h"
-#include "pico/stdlib.h"
+//#include <arduino.h>
+//#include <string.h>
+
+//#include "pico/stdlib.h"
 #include "I2C_RTC.h"
 
 #include <SPI.h>
@@ -88,7 +88,7 @@ void setup() {
 #endif
 
   // if available, then init SPI-Interface
-#if !defined(MAKERGPIO) 
+#if defined(MAKERSPI) 
   SDSPI.setMISO(PIN_MISO);
   SDSPI.setMOSI(PIN_MOSI);
   SDSPI.setSCK(PIN_SCK);
@@ -97,7 +97,15 @@ void setup() {
   
 #endif
   Serial.print(F("Init SD-Card  ... "));
-  if (SD.begin( SDCRD)) {
+  bool bInitSD = false;
+  // bInitSD = SD.begin( RP_CLK_GPIO, RP_CMD_GPIO, RP_DAT0_GPIO);
+  bInitSD = SD.begin( SDCRD);
+    // Serial.println(SDCRD);
+    // Serial.println(RP_CLK_GPIO);
+    // Serial.println(RP_CMD_GPIO);
+    // Serial.println(RP_DAT0_GPIO);
+  
+  if (bInitSD) {
     Serial.println(F("OK"));
   } else {
     Serial.println(F("failed"));

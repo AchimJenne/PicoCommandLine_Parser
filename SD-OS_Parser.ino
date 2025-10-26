@@ -788,31 +788,35 @@ int fnc_VER(const char* szCmdLn)
 /**************************************************/
 int fnc_VOL(const char* szCmdLn)
 {
- /* place your code here */
- Serial.println(F(": "));
- 
-  Serial.print(F("SD-Card type: "));
-  switch (SD.type()) {
-    case SD_CARD_TYPE_SD1:
-      Serial.println(F("SD1"));
-      break;
-    case SD_CARD_TYPE_SD2:
-      Serial.println(F("SD2"));
-      break;
-    case SD_CARD_TYPE_SDHC:
-      Serial.println(F("SDHC"));
-      break;
-    default:
-      Serial.println(F("Unknown"));
+  /* place your code here */
+  Serial.println(F(": "));
+  digitalWrite(PIN_LED, 1);
+  if (SD.begin(SDCRD)) {
+    Serial.print(F("SD-Card type: "));
+    switch (SD.type()) {
+      case SD_CARD_TYPE_SD1:
+        Serial.println(F("SD1"));
+        break;
+      case SD_CARD_TYPE_SD2:
+        Serial.println(F("SD2"));
+        break;
+      case SD_CARD_TYPE_SDHC:
+        Serial.println(F("SDHC"));
+        break;
+      default:
+        Serial.println(F("Unknown"));
+    }
+    Serial.print(F("SD-card size: "));
+    Serial.print(SD.size64()/(1024*1024));
+    Serial.println(F(" MByte"));
+    Serial.printf("Blocksize  : %d Byte\r\n", SD.blockSize());
+    Serial.printf("Blocks     : %d\r\n", SD.totalBlocks());
+    Serial.printf("Clustersize: %d Byte\r\n", SD.clusterSize());
+    Serial.printf("Cluster    : %d\r\n", SD.totalClusters());
   }
-  Serial.print(F("SD-card size: "));
-  Serial.print(SD.size64()/(1024*1024));
-  Serial.println(F(" MByte"));
-  Serial.printf("Blocksize  : %d Byte\r\n", SD.blockSize());
-  Serial.printf("Blocks     : %d\r\n", SD.totalBlocks());
-  Serial.printf("Clustersize: %d Byte\r\n", SD.clusterSize());
-  Serial.printf("Cluster    : %d\r\n", SD.totalClusters());
-   return( eVOL );
+  SD.end();
+  digitalWrite(PIN_LED, 0);
+  return( eVOL );
 }  /* end of fnc_VOL */
  
 /**************************************************/

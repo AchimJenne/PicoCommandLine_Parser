@@ -7,7 +7,7 @@
 #define ILINE 80
 #include <pins_arduino.h>
 /**************************************************/
-#define MAKERSPI1
+#define MAKERGPIO
 
 /*! \brief MYSPI0                                 
     \ingroup SDOS_PICO 
@@ -38,9 +38,9 @@
 #define SDCRD PIN_SS,SPI1
 #elif defined MAKERGPIO
 // If you have all 4 DAT pins wired up to the Pico you can use SDIO mode
-const int RP_CLK_GPIO = 10; // Set to CLK GPIO
-const int RP_CMD_GPIO = 11; // Set to CMD GPIO
-const int RP_DAT0_GPIO = 12; // Set to DAT0 GPIO. DAT1..3 must be consecutively 
+const uint8_t RP_CLK_GPIO = 10; // Set to CLK GPIO
+const uint8_t RP_CMD_GPIO = 11; // Set to CMD GPIO
+const uint8_t RP_DAT0_GPIO = 12; // Set to DAT0 GPIO. DAT1..3 must be consecutively 
 #define SDCRD RP_CLK_GPIO,RP_CMD_GPIO,RP_DAT0_GPIO
 #elif defined WS35SPI1
 #define SDSPD 40
